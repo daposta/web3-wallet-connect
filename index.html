@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Title Page</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.6.1/web3.min.js" crossorigin="anonymous"></script>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <style type="text/css">
+        .hidden {
+           display: none!important;
+           visibility: hidden!important;
+        }
+    </style>
+  </head>
+  <body>
+    <div class="text-center">
+      <div class="mb-3 row">
+        <button id="loginBtn" class="btn btn-primary" onclick="loginWithEth()">Login and Save Eth Address</button>
+      </div>
+      <div class="mb-3 row">
+        <p id="userEthAddress"></p>
+      </div>
+      <div class="mb-3 row">
+        <button id="logoutBtn" class="btn btn-primary hidden" onclick="logout()">Logout</button>
+      </div>
+      <div class="mb-3 row">
+        <button class="btn btn-primary">Get Contract Info</button>
+      </div>
+      
+    </div>
+
+    <script type="text/javascript">
+      window.userEthAddress = null;
+      window.onload = async() => {
+        //initialize web3 connected to Eth
+        if(window.ethereum){
+          window.web3 = new Web3(ethereum);
+          console.log('has eth');
+          try{
+            await ethereum.enable();
+            
+          }
+          catch(err){
+              console.error(err);
+          }
+         
+        }
+        else{
+          alert('No Eth Browser extension detected');
+        }
+        window.userEthAddress = window.localStorage.getItem('userEthAddress');
+        showAddress();
+      };
+
+      function showAddress(){
+        const _address = window.userEthAddress;
+        if(!_address){
+          document.getElementById('userEthAddress').innerText = `Eth Address: `;
+          document.getElementById('logoutBtn').classList.add('hidden');
+          document.getElementById('loginBtn').classList.remove('hidden');
+          return false;
+        }
+        document.getElementById('userEthAddress').innerText = `Eth Address: ${_address}`;
+        document.getElementById('logoutBtn').classList.remove('hidden');
+        document.getElementById('loginBtn').classList.add('hidden');
+      }
+
+      function logout(){
+        window.userEthAddress = null;
+        window.localStorage.removeItem('userEthAddress');
+        showAddress();
+        // document.getElementById('userEthAddress').innerText = `Eth Address: `;
+        //  document.getElementById('loginBtn').classList.remove('hidden');
+        //  document.getElementById('logoutBtn').classList.add('hidden');
+      }
+
+      async function loginWithEth(){
+        if(window.web3){
+          try{
+              const accounts =  await web3.eth.getAccounts();
+             
+              window.userEthAddress = accounts[0];
+
+              window.localStorage.setItem('userEthAddress', accounts[0]);
+              showAddress();
+             /// debugger;
+          }catch(err){
+              console.error(err);
+          }
+        }
+      }
+
+      async function getContractInfo(){
+        const contractaddress = '';
+        const abi = [];
+        const contract = new window.web3.eth.Contract(abi, contractaddress);
+
+        //call functions on contract
+        const response = contract.methods.func().call({from:window.userEthAddress});
+      }
+    </script>
+    
+  </body>
+</html>
